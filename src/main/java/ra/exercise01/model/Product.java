@@ -1,24 +1,36 @@
 package ra.exercise01.model;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+
+@Entity
+@Table(name = "products")
 public class Product {
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @NotBlank(message = "Tên không được để trống")
     private String name;
+
+    @Min(value = 0, message = "Giá phải lớn hơn hoặc bằng 0")
     private double price;
 
     public Product() {
     }
 
-    public Product(int id, String name, double price) {
+    public Product(Integer id, String name, double price) {
         this.id = id;
         this.name = name;
         this.price = price;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

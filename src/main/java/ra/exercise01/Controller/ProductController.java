@@ -1,6 +1,9 @@
 package ra.exercise01.Controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ra.exercise01.model.Product;
 import ra.exercise01.service.ProductService;
@@ -12,34 +15,36 @@ import java.util.List;
 @RequestMapping("/api/products")
 public class ProductController {
     @Autowired
-    private ProductService productService;
+    private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
     // Lấy danh sách
     @GetMapping
-    public List<Product> getProducts() {
-        return  productService.getAllProducts();
+    public ResponseEntity<List<Product>> getAllProducts() {
+        return ResponseEntity.ok(productService.getAllProducts());
     }
 
     // Thêm mới
     @PostMapping
-    public Product addProduct(@RequestBody Product product) {
-        return productService.addProduct(product);
+    public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
+        Product saved = productService.addProduct(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     // Cập nhật
     @PutMapping("/{id}")
-    public Product updateProduct(@PathVariable int id, @RequestBody Product product) {
-        return productService.updateProduct(id, product);
+    public ResponseEntity<Product> updateProduct(@PathVariable Integer id,
+                                                 @Valid @RequestBody Product product) {
+        return ResponseEntity.ok(productService.updateProduct(id, product));
     }
 
     // Xoá
     @DeleteMapping("/{id}")
-    public String deleteProduct(@PathVariable int id) {
-        boolean isDeleted = productService.deleteProduct(id);
-        if (isDeleted) {
-            return "Xóa thành công sản phẩm ID: " + id;
-        }else  {
-            return "Không tìm thấy sản phẩm để xóa";
-        }
+    public ResponseEntity<Product> deleteProduct(@PathVariable Integer id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
     }
 }

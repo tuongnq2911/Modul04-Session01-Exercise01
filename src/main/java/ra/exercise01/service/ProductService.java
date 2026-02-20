@@ -2,44 +2,45 @@ package ra.exercise01.service;
 
 import ra.exercise01.model.Product;
 import org.springframework.stereotype.Service;
+import ra.exercise01.repository.ProductRepository;
+
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class ProductService {
-    private List<Product> products = new ArrayList<>();
+    private final ProductRepository productRepository;
 
-    public ProductService() {
-        products.add(new Product(1, "Laptop Dell", 1500.0));
-        products.add(new Product(2, "Iphone 17 PRO", 1500.0));
-        products.add(new Product(3, "Ban Phim Logitech", 20.0));
+
+    public ProductService(ProductRepository productRepository) {
+        this.productRepository = productRepository;
     }
 
     // 1. Lấy tất cả danh sách
     public List<Product> getAllProducts() {
-        return products;
+        return productRepository.findAll();
     }
 
     // 2. Thêm mới
     public Product addProduct(Product product) {
-        products.add(product);
-        return product;
+        return productRepository.save(product);
     }
 
     // 3. Sửa
-    public Product updateProduct(int id, Product newProduct) {
-        for (Product p : products) {
-            if (p.getId() == id) {
-                p.setName(newProduct.getName());
-                p.setPrice(newProduct.getPrice());
-                return p;
-            }
-        }
-        return null;
+    public Product updateProduct(Integer id, Product newProduct) {
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
+        existingProduct.setName(newProduct.getName());
+        existingProduct.setPrice(newProduct.getPrice());
+
+        return productRepository.save(existingProduct);
     }
 
     // 4. Xoá
-    public boolean deleteProduct(int id) {
-        return  products.removeIf(p -> p.getId() == id);
+    public void deleteProduct(Integer id) {
+        if (!productRepository.existsById(id)) {
+            throw new RuntimeException("Không tìm thấy sản phẩm");
+        }
+        productRepository.deleteById(id);
     }
 }
